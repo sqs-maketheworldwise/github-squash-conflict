@@ -1,0 +1,37 @@
+name: Merge after squash and merge
+
+on:
+  pull_request:
+    branches:
+      - main
+      - stg
+      - dev
+
+jobs:
+  plant_the_grass:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GH_TOKEN}}
+
+      - name: Set git accounts
+        run: |
+          git config --global user.email "maketheworldwise@squares.ai"
+          git config --global user.name "maketheworldwise"
+
+      - name: Merge And push (main > stg)
+        if: ${{ github.event.pull_request.merged && github.event.pull_request.merge_commit_sha && (github.head_ref || github.ref_name) == 'main'}}
+        run: |
+          git checkout stg
+          git merge main -m 'align-commit-main' || git merge --abort
+          git push
+
+      - name: Merge And push (stg > dev)
+        if: ${{ github.event.pull_request.merged && github.event.pull_request.merge_commit_sha && (github.head_ref || github.ref_name) == 'stg'}}
+        run: |
+          git checkout dev
+          git merge stg -m 'align-commit-stg' || git merge --abort
+          git push
