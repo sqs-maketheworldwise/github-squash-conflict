@@ -6,6 +6,7 @@ on:
       - main
       - stg
       - dev
+    types: [closed]
 
 jobs:
   plant_the_grass:
