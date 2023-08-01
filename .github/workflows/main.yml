@@ -1,0 +1,60 @@
+name: Merge after squash and merge
+
+on:
+  pull_request:
+    branches:
+      - main
+      - stg
+      - dev
+    types: [closed]
+
+jobs:
+  jobs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GH_TOKEN}}
+
+      - name: Set git accounts
+        run: |
+          git config --global user.email "maketheworldwise@squares.ai"
+          git config --global user.name "maketheworldwise"
+
+      - name: Merge main and push (main > stg)
+        if: ${{ github.event.pull_request.merged && github.event.pull_request.merge_commit_sha && github.head_ref == 'stg'}}
+        run: |
+          SOURCE_BRANCH="main"
+          TARGET_BRANCH="stg"
+
+          # Fetch the latest changes from the repository
+          git fetch origin $TARGET_BRANCH
+
+          # Checkout the target branch
+          git checkout $TARGET_BRANCH
+
+          # Merge the source branch into the target branch
+          git merge $SOURCE_BRANCH -m 'align-commit-stg'
+
+          # Push the changes to the target branch
+          git push origin $TARGET_BRANCH
+
+      - name: Merge stg and push (stg > dev)
+        if: ${{ github.event.pull_request.merged && github.event.pull_request.merge_commit_sha && github.head_ref == 'dev'}}
+        run: |
+          SOURCE_BRANCH="stg"
+          TARGET_BRANCH="dev"
+
+          # Fetch the latest changes from the repository
+          git fetch origin $TARGET_BRANCH
+
+          # Checkout the target branch
+          git checkout $TARGET_BRANCH
+
+          # Merge the source branch into the target branch
+          git merge $SOURCE_BRANCH -m 'align-commit-stg'
+
+          # Push the changes to the target branch
+          git push origin $TARGET_BRANCH
