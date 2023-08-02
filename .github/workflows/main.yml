@@ -35,8 +35,9 @@ jobs:
           # Checkout the target branch
           git checkout $TARGET_BRANCH
 
-          # Merge the source branch into the target branch
-          git merge $SOURCE_BRANCH -m 'align-commit-stg'
+          # Merge the source branch into the target branch 
+          # || git merge --abort
+          git merge $SOURCE_BRANCH -m 'align-commit-stg' || git merge --abort
 
           # Push the changes to the target branch
           git push origin $TARGET_BRANCH
@@ -54,7 +55,7 @@ jobs:
           git checkout $TARGET_BRANCH
 
           # Merge the source branch into the target branch
-          git merge $SOURCE_BRANCH -m 'align-commit-stg'
+          git merge $SOURCE_BRANCH --allow-unrelated-histories -m 'align-commit-stg' || git merge --abort
 
           # Push the changes to the target branch
           git push origin $TARGET_BRANCH
